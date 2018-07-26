@@ -14,14 +14,35 @@ query: string
 '''
 
 base_url = 'https://search.naver.com/search.naver?where=kin&kin_sort=0&kin_display=10&answer=2&ie=utf8&sm=tab_pge'
-keywords = pd.read_csv('keyword.csv')
 
-for idx, keyword in keywords.iterrows():
-    query = keyword["Keyword"]
+###
+#   GET KEYWORDS FROM CSV FILE
+###
+# keywords = pd.read_csv('keyword.csv')
 
-    # Basic
-    crawling = Crawling(base_url)
-    crawling.set_url(query)
-    crawling.get_page_count()
+# for idx, keyword in keywords.iterrows():
+#     query = keyword["Keyword"]
 
-    crawling.close_driver()
+#     # Basic
+#     crawling = Crawling(base_url)
+#     crawling.set_query(query)
+
+#     crawling.open_driver()
+#     crawling.get_questions()
+
+#     crawling.quit_driver()
+
+
+###
+#  USE SINGLE KEYWORD
+###
+query = "감기"
+
+# Basic
+crawling = Crawling(base_url)
+crawling.set_query(query)
+
+crawling.open_driver()
+crawling.get_questions()
+
+crawling.quit_driver()
