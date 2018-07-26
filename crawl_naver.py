@@ -35,8 +35,14 @@ class Crawling:
 
     def open_driver(self):
         self.driver.get(self.url)
-        WebDriverWait(self.driver, 5).until(
-            EC.presence_of_element_located((By.ID, self.question_bundle_id)))
+        try:
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.ID, self.question_bundle_id)))
+            return True
+        except TimeoutException as e:
+            print('{}: TimeoutException waiting for search input field: {}'.format(
+                self.name, e))
+            return False
 
     def close_driver(self):
         # 포커스가 설정된 브라우저 창을 닫음
@@ -66,10 +72,10 @@ class Crawling:
         window = 1 if isNew else 0
         self.driver.switch_to_window(self.driver.window_handles[window])
         if isNew:
-            WebDriverWait(self.driver, 5).until(
+            WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, self.single_question_css)))
         else:
-            WebDriverWait(self.driver, 5).until(
+            WebDriverWait(self.driver, 10).until(
                 EC.presence_of_element_located((By.ID, self.question_bundle_id)))
 
     def get_sentences_from_question(self):

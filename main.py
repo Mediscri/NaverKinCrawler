@@ -26,10 +26,9 @@ for index, row in keywords.iterrows():
 
     crawling = Crawling(base_url, query, category)
 
-    print('##################', 'keyword', query, '##################')
-    crawling.open_driver()
-    crawling.get_questions()
-
+    print('##################', 'keyword:', query, '##################')
+    if crawling.open_driver():
+        crawling.get_questions()
     crawling.quit_driver()
     print()
 
