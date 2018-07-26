@@ -28,6 +28,7 @@ class Crawling:
         self.driver = driver
         self.question_bundle_id = 'elThumbnailResultArea'
         self.single_question_css = '#contents_layer_0 > div.end_content._endContents > div'
+        self.page = 1
 
         self.base_url = base_url
         self.query = query
@@ -57,6 +58,7 @@ class Crawling:
         self.driver.quit()
 
     def get_questions(self):
+        print("current page: ", self.page)
         question_area = self.driver.find_element_by_id('elThumbnailResultArea')
         for question in question_area.find_elements_by_xpath('.//li/dl/dt/a'):
             question.click()
@@ -101,7 +103,7 @@ class Crawling:
                     'category': [self.category for _ in range(sentence_num)],
                     'sentence': sentences}
         data = pd.DataFrame(raw_data)
-        print(data.to_string(index=False))
+        # print(data.to_string(index=False))
 
         file = 'sentence_with_keyword.csv'
         if not os.path.isfile(file):
@@ -115,6 +117,7 @@ class Crawling:
         next_button = paging_section.find("a", class_="next")
 
         if next_button is not None:
+            self.page += 1
             # click button
             self.driver.find_element_by_css_selector('a.next').click()
             self.switch_window()
