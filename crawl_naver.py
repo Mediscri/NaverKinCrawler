@@ -3,6 +3,7 @@ import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from konlpy.tag import Kkma
@@ -33,15 +34,18 @@ class Crawling:
         self.category = category
         self.url = self.base_url + "&query=" + self.query
 
+    def set_soup(self):
+        html = self.driver.page_source
+        self.soup = BeautifulSoup(html, 'html.parser')
+
     def open_driver(self):
         self.driver.get(self.url)
         try:
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.ID, self.question_bundle_id)))
             return True
         except TimeoutException as e:
-            print('{}: TimeoutException waiting for search input field: {}'.format(
-                self.name, e))
+            print("There's no result on this keyword")
             return False
 
     def close_driver(self):
@@ -72,16 +76,15 @@ class Crawling:
         window = 1 if isNew else 0
         self.driver.switch_to_window(self.driver.window_handles[window])
         if isNew:
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, self.single_question_css)))
         else:
-            WebDriverWait(self.driver, 10).until(
+            WebDriverWait(self.driver, 5).until(
                 EC.presence_of_element_located((By.ID, self.question_bundle_id)))
 
     def get_sentences_from_question(self):
-        html = self.driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        question = soup.select_one(self.single_question_css).text
+        self.set_soup()
+        question = self.soup.select_one(self.single_question_css).text
         sentences = self.kkma.sentences(question)
 
         # 텍스트 후처리
@@ -107,9 +110,8 @@ class Crawling:
             data.to_csv(file, mode='a', header=False, index=False)
 
     def is_next_exist(self):
-        html = self.driver.page_source
-        soup = BeautifulSoup(html, 'html.parser')
-        paging_section = soup.select_one('#main_pack > div.paging')
+        self.set_soup()
+        paging_section = self.soup.select_one('#main_pack > div.paging')
         next_button = paging_section.find("a", class_="next")
 
         if next_button is not None:
