@@ -1,8 +1,5 @@
-from selenium import webdriver
-from bs4 import BeautifulSoup
-
-driver = webdriver.Chrome('/Users/jiwoonwon/Downloads/chromedriver')
-driver.implicitly_wait(3)
+from crawl_naver import Crawling
+import pandas as pd
 
 '''
 base_url = 'https://search.naver.com/search.naver'
@@ -17,23 +14,14 @@ query: string
 '''
 
 base_url = 'https://search.naver.com/search.naver?where=kin&kin_sort=0&kin_display=10&answer=2&ie=utf8&sm=tab_pge'
-query = '담배'
+keywords = pd.read_csv('keyword.csv')
 
-url = base_url + '&query=' + query
+for idx, keyword in keywords.iterrows():
+    query = keyword["Keyword"]
 
-# open chrome browser
-driver.get(url)
+    # Basic
+    crawling = Crawling(base_url)
+    crawling.set_url(query)
+    crawling.get_page_count()
 
-# get result_count
-html = driver.page_source
-soup = BeautifulSoup(html, 'html.parser')
-result_info = soup.select_one(
-    '#main_pack > div.kinn.section._kinBase > div > span').text.split(' / ')
-result_count = result_info[1][:-1]
-result_count = int(result_count.replace(',', ''))
-
-# calculate page_count
-page_count = result_count // 10 + 1
-print(page_count)
-
-driver.close()
+    crawling.close_driver()
