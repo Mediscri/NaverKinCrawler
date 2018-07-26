@@ -18,31 +18,31 @@ base_url = 'https://search.naver.com/search.naver?where=kin&kin_sort=0&kin_displ
 ###
 #   GET KEYWORDS FROM CSV FILE
 ###
-# keywords = pd.read_csv('keyword.csv')
+keywords = pd.read_csv('keyword.csv')
 
-# for idx, keyword in keywords.iterrows():
-#     query = keyword["Keyword"]
+for index, row in keywords.iterrows():
+    query = row['keyword']
+    category = row['category']
 
-#     # Basic
-#     crawling = Crawling(base_url)
-#     crawling.set_query(query)
+    crawling = Crawling(base_url, query, category)
 
-#     crawling.open_driver()
-#     crawling.get_questions()
+    print('##################', 'keyword', query, '##################')
+    crawling.open_driver()
+    crawling.get_questions()
 
-#     crawling.quit_driver()
+    crawling.quit_driver()
+    print()
 
 
 ###
 #  USE SINGLE KEYWORD
 ###
-query = "감기"
+# query = "감기"
+# category = "CC"
 
-# Basic
-crawling = Crawling(base_url)
-crawling.set_query(query)
+# crawling = Crawling(base_url, query, category)
 
-crawling.open_driver()
-crawling.get_questions()
+# crawling.open_driver()
+# crawling.get_questions()
 
-crawling.quit_driver()
+# crawling.quit_driver()
