@@ -2,11 +2,11 @@
 
 ### Purpose
 
-* 병원 데이터 확보 전 딥러닝 모델 학습을 위한 임시 데이터 확보
+- 병원 데이터 확보 전 딥러닝 모델 학습을 위한 임시 데이터 확보
 
 ### Dataset
 
-* 사전에 분류한 카테고리에 따라 검색된 결과물을 문장별로 저장
+- 사전에 분류한 카테고리에 따라 검색된 결과물을 문장별로 저장
 
   ```
   data = [
@@ -19,9 +19,7 @@
   ]
   ```
 
-  
-
 ### Using Library
 
-* Chronium
-* Beautiful Soup
+- Selenium
+- Beautiful Soup

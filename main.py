@@ -34,3 +34,6 @@ result_count = int(result_count.replace(',', ''))
 
 # calculate page_count
 page_count = result_count // 10 + 1
+print(page_count)
+
+driver.close()
