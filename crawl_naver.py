@@ -62,8 +62,9 @@ class Crawling:
 
     def get_questions(self):
         print("current page: ", self.page)
-        question_area = self.driver.find_element_by_id('elThumbnailResultArea')
-        for question in question_area.find_elements_by_xpath('.//li/dl/dt/a'):
+        question_bundle = self.driver.find_element_by_id(
+            self.question_bundle_id)
+        for question in question_bundle.find_elements_by_xpath('.//li/dl/dt/a'):
             question.click()
             # 포커스 화면 전환
             self.switch_window(True)
@@ -75,7 +76,7 @@ class Crawling:
             self.switch_window()
 
         # 다음 페이지 버튼 있으면 넘어가기
-        self.is_next_exist()
+        self.click_next_page()
 
     def switch_window(self, isNew=False):
         window = 1 if isNew else 0
@@ -95,8 +96,9 @@ class Crawling:
         # 텍스트 후처리
         s_refine = []
         for data in sentences:
-            s_refine.append(data.strip())
-        s_refine = list(filter(lambda text: len(text) > 6, s_refine))
+            text = data.strip()
+            if len(text) > 6:
+                s_refine.append(text)
 
         return s_refine
 
@@ -112,7 +114,7 @@ class Crawling:
         else:
             data.to_csv(self.save_file, mode='a', header=False, index=False)
 
-    def is_next_exist(self):
+    def click_next_page(self):
         self.set_soup()
         paging_section = self.soup.select_one('#main_pack > div.paging')
         next_button = paging_section.find("a", class_="next")
