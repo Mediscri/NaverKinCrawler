@@ -1,47 +1,28 @@
 from crawl_naver import Crawling
 import pandas as pd
 
-'''
-base_url = 'https://search.naver.com/search.naver'
-sm = 'tab_pge'
-ie = 'utf8'
-where: string => 지식in: 'kin'
-answer: int => 의사: 2
-kin_sort: int => default: 0
-kin_display: int => default: 10
-kin_start: int
-query: string
-'''
 
-base_url = 'https://search.naver.com/search.naver?where=kin&kin_sort=0&kin_display=10&answer=2&ie=utf8&sm=tab_pge'
+def run_single_row(keyword, category):
+    crawling = Crawling(keyword, category, save_file)
 
-###
-#   GET KEYWORDS FROM CSV FILE
-###
-keywords = pd.read_csv('keyword.csv')
-
-for index, row in keywords.iterrows():
-    query = row['keyword']
-    category = row['category']
-
-    crawling = Crawling(base_url, query, category)
-
-    print('##################', 'keyword:', query, '##################')
+    print('##################', 'keyword:', keyword, '##################')
     if crawling.open_driver():
         crawling.get_questions()
     crawling.quit_driver()
     print()
 
 
-###
-#  USE SINGLE KEYWORD
-###
-# query = "감기"
-# category = "CC"
+MODE = {'PRODUCTION': 'PRODUCTION', 'DEVELOPMENT': 'DEVELOPMENT'}
 
-# crawling = Crawling(base_url, query, category)
+# option 1
+current_mode = MODE['PRODUCTION']
+# option 2
+save_file = 'result.csv'
 
-# crawling.open_driver()
-# crawling.get_questions()
+if current_mode == MODE['DEVELOPMENT']:
+    run_single_row("감기", "CC")
 
-# crawling.quit_driver()
+elif current_mode == MODE['PRODUCTION']:
+    keywords = pd.read_csv('keyword.csv')
+    for _, row in keywords.iterrows():
+        run_single_row(row['keyword'], row['category'])

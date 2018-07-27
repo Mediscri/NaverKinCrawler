@@ -8,21 +8,23 @@ from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from konlpy.tag import Kkma
 
-"""
-self.kkma
-self.driver
-self.question_bundle_id
-self.single_question_css
+'''
+base_url = 'https://search.naver.com/search.naver'
+sm = 'tab_pge'
+ie = 'utf8'
+where: string => 지식in: 'kin'
+answer: int => 의사: 2
+kin_sort: int => default: 0
+kin_display: int => default: 10
+kin_start: int
+query: string
+'''
 
-self.base_url
-self.query = keyword
-self.category
-self.url
-"""
+base_url = 'https://search.naver.com/search.naver?where=kin&kin_sort=0&kin_display=10&answer=2&ie=utf8&sm=tab_pge'
 
 
 class Crawling:
-    def __init__(self, base_url, query, category):
+    def __init__(self, query, category, save_file):
         driver = webdriver.Chrome('./chromedriver')
         self.kkma = Kkma()
         self.driver = driver
@@ -30,10 +32,11 @@ class Crawling:
         self.single_question_css = '#contents_layer_0 > div.end_content._endContents > div'
         self.page = 1
 
-        self.base_url = base_url
         self.query = query
         self.category = category
-        self.url = self.base_url + "&query=" + self.query
+        self.url = base_url + "&query=" + self.query
+
+        self.save_file = save_file
 
     def set_soup(self):
         html = self.driver.page_source
@@ -103,13 +106,11 @@ class Crawling:
                     'category': [self.category for _ in range(sentence_num)],
                     'sentence': sentences}
         data = pd.DataFrame(raw_data)
-        # print(data.to_string(index=False))
 
-        file = 'sentence_with_keyword.csv'
-        if not os.path.isfile(file):
-            data.to_csv(file, header='column_names', index=False)
+        if not os.path.isfile(self.save_file):
+            data.to_csv(self.save_file, header='column_names', index=False)
         else:
-            data.to_csv(file, mode='a', header=False, index=False)
+            data.to_csv(self.save_file, mode='a', header=False, index=False)
 
     def is_next_exist(self):
         self.set_soup()

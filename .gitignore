@@ -1,4 +1,6 @@
-/__pycache__
-/.vscode
+__pycache__/
+.vscode/
 chromedriver
-sentence_with_keyword.csv
+
+*.csv
+!keyword.csv
