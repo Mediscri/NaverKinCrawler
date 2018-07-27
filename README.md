@@ -21,8 +21,8 @@
 
 ### Dependency
 
+- [KoalaNLP](https://github.com/nearbydelta/py-koalanlp)
 - Selenium
-- Kkma
 - BeautifulSoup
 - Pandas
 

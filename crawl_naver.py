@@ -1,12 +1,14 @@
 import pandas as pd
 import os
+import re
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-from konlpy.tag import Kkma
+from koalanlp import *
+
 
 '''
 base_url = 'https://search.naver.com/search.naver'
@@ -23,11 +25,23 @@ query: string
 base_url = 'https://search.naver.com/search.naver?where=kin&kin_sort=0&kin_display=10&answer=2&ie=utf8&sm=tab_pge'
 
 
+def init_koala_nlp():
+    initialize(packages=[API.HANNANUM])
+
+
 class Crawling:
     def __init__(self, query, category, save_file):
-        driver = webdriver.Chrome('./chromedriver')
-        self.kkma = Kkma()
-        self.driver = driver
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument('window-size=1920x1080')
+        options.add_argument("disable-gpu")
+        # Headless 탐지 막기
+        options.add_argument(
+            "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
+        self.driver = webdriver.Chrome(
+            './chromedriver', chrome_options=options)
+
+        self.splitter = SentenceSplitter(splitter_type=API.HANNANUM)
         self.question_bundle_id = 'elThumbnailResultArea'
         self.single_question_css = '#contents_layer_0 > div.end_content._endContents > div'
         self.page = 1
@@ -36,6 +50,8 @@ class Crawling:
         self.category = category
         self.url = base_url + "&query=" + self.query
 
+        if os.path.isfile(save_file):
+            os.remove(save_file)
         self.save_file = save_file
 
     def set_soup(self):
@@ -91,21 +107,28 @@ class Crawling:
     def get_sentences_from_question(self):
         self.set_soup()
         question = self.soup.select_one(self.single_question_css).text
-        sentences = self.kkma.sentences(question)
-
-        # 텍스트 후처리
-        s_refine = []
-        for data in sentences:
-            text = data.strip()
-            if len(text) > 6:
-                s_refine.append(text)
-
-        return s_refine
+        # 반복되는 특수문자 처리
+        paragraph = re.sub(r"([\s.,?!~=-]){2,}", r"\1", question)
+        # 불필요한 문자 제거
+        paragraph = re.sub('!', '.', paragraph)
+        paragraph = re.sub('[^가-힣0-9\s.,?~=-]+|안녕[가-힣]*[.]*', '', paragraph)
+        # 마침표 찍어주기
+        paragraph = re.sub(r"([요])\s+", r"\1. ", paragraph)
+        # 문장 분리
+        sentences = self.splitter.sentences(paragraph)
+        re_sentences = []  # 정제된 문장
+        for text in sentences:
+            # 앞뒤 공백 제거
+            re_text = text.strip()
+            # 정규화 > . ? 앞의 공백 제거
+            re_text = re.sub(r"\s*([.?])$", r"\1", re_text)
+            re_sentences.append(re_text)
+        return re_sentences
 
     def write_sentences_to_csv(self, sentences):
-        sentence_num = len(sentences)
-        raw_data = {'keyword': [self.query for _ in range(sentence_num)],
-                    'category': [self.category for _ in range(sentence_num)],
+        sentence_len = len(sentences)
+        raw_data = {'keyword': [self.query for _ in range(sentence_len)],
+                    'category': [self.category for _ in range(sentence_len)],
                     'sentence': sentences}
         data = pd.DataFrame(raw_data)
 

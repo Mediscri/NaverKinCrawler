@@ -1,4 +1,4 @@
-from crawl_naver import Crawling
+from crawl_naver import *
 import pandas as pd
 
 
@@ -12,17 +12,19 @@ def run_single_row(keyword, category):
     print()
 
 
-MODE = {'PRODUCTION': 'PRODUCTION', 'DEVELOPMENT': 'DEVELOPMENT'}
+PRODUCTION = 'PRODUCTION'
+DEVELOPMENT = 'DEVELOPMENT'
 
 # option 1
-current_mode = MODE['PRODUCTION']
+current_mode = DEVELOPMENT
 # option 2
 save_file = 'result.csv'
 
-if current_mode == MODE['DEVELOPMENT']:
+init_koala_nlp()
+if current_mode == DEVELOPMENT:
     run_single_row("감기", "CC")
 
-elif current_mode == MODE['PRODUCTION']:
+elif current_mode == PRODUCTION:
     keywords = pd.read_csv('keyword.csv')
     for _, row in keywords.iterrows():
         run_single_row(row['keyword'], row['category'])
