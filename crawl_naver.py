@@ -42,6 +42,7 @@ class Crawling:
             './chromedriver', chrome_options=options)
 
         self.splitter = SentenceSplitter(splitter_type=API.HANNANUM)
+
         self.question_bundle_id = 'elThumbnailResultArea'
         self.single_question_css = '#contents_layer_0 > div.end_content._endContents > div'
         self.page = 1
@@ -77,7 +78,7 @@ class Crawling:
         self.driver.quit()
 
     def get_questions(self):
-        print("current page: ", self.page)
+        print("current page:", self.page)
         question_bundle = self.driver.find_element_by_id(
             self.question_bundle_id)
         for question in question_bundle.find_elements_by_xpath('.//li/dl/dt/a'):
@@ -107,21 +108,26 @@ class Crawling:
     def get_sentences_from_question(self):
         self.set_soup()
         question = self.soup.select_one(self.single_question_css).text
+        paragraph = question.strip()
         # 반복되는 특수문자 처리
-        paragraph = re.sub(r"([\s.,?!~=-]){2,}", r"\1", question)
+        paragraph = re.sub(r'([\s.,?!~=-]){2,}', r'\1', paragraph)
         # 불필요한 문자 제거
-        paragraph = re.sub('!', '.', paragraph)
-        paragraph = re.sub('[^가-힣0-9\s.,?~=-]+|안녕[가-힣]*[.]*', '', paragraph)
-        # 마침표 찍어주기
-        paragraph = re.sub(r"([요])\s+", r"\1. ", paragraph)
+        paragraph = re.sub(
+            '[^가-힣0-9\s.,!?~=-]+|[안녕|도와|감사][가-힣]+[.]*', '', paragraph)
+        # 문장 end-point rule-based로 표시
+        paragraph = re.sub(
+            r'([가-힣]*[가구까나내네도대돼데만서세아어이파해])[.]\s*', r'\1 ', paragraph)
+        paragraph = re.sub(
+            r'([가-힣]*[가구까나내네도대돼데만서세아어이파해]요|[가-힣]+니다)[~.?!]*\s*', r'\1. ', paragraph)
         # 문장 분리
         sentences = self.splitter.sentences(paragraph)
+
         re_sentences = []  # 정제된 문장
         for text in sentences:
             # 앞뒤 공백 제거
             re_text = text.strip()
             # 정규화 > . ? 앞의 공백 제거
-            re_text = re.sub(r"\s*([.?])$", r"\1", re_text)
+            re_text = re.sub(r'\s*([.?])$', r'\1', re_text)
             re_sentences.append(re_text)
         return re_sentences
 

@@ -16,7 +16,7 @@ PRODUCTION = 'PRODUCTION'
 DEVELOPMENT = 'DEVELOPMENT'
 
 # option 1
-current_mode = DEVELOPMENT
+current_mode = PRODUCTION
 # option 2
 save_file = 'result.csv'
 
