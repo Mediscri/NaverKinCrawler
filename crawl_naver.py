@@ -40,7 +40,6 @@ class Crawling:
             "user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36")
         self.driver = webdriver.Chrome(
             './chromedriver', chrome_options=options)
-
         self.splitter = SentenceSplitter(splitter_type=API.HANNANUM)
 
         self.question_bundle_id = 'elThumbnailResultArea'
@@ -50,9 +49,6 @@ class Crawling:
         self.query = query
         self.category = category
         self.url = base_url + "&query=" + self.query
-
-        if os.path.isfile(save_file):
-            os.remove(save_file)
         self.save_file = save_file
 
     def set_soup(self):
