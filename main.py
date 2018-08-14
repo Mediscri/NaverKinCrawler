@@ -1,10 +1,11 @@
 from crawl_naver import *
 import os
 import pandas as pd
+from datetime import datetime
 
 
 def run_single_row(keyword, category):
-    crawling = Crawling(keyword, category, save_file)
+    crawling = Crawling(keyword, category, save_file, start_at)
 
     print('##################', 'keyword:', keyword, '##################')
     if crawling.open_driver():
@@ -19,7 +20,14 @@ PRODUCTION = 'PRODUCTION'
 # option 1
 current_mode = PRODUCTION
 # option 2
-save_file = 'result.csv'
+start_at = '20180730'
+
+# define file name
+save_file = ''
+if start_at:
+    save_file += 'from' + start_at
+save_file += 'to' + get_today() + '.csv'
+
 
 # INITIALIZE
 init_koala_nlp()

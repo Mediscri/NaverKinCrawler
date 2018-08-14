@@ -6,11 +6,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
+from datetime import datetime
 from bs4 import BeautifulSoup
 from koalanlp import *
 
 
 '''
+https://search.naver.com/search.naver?where=kin&query=%EB%B3%B5%ED%86%B5&kin_sort=0&c_id=&c_name=&sm=tab_opt&sec=0&title=0&answer=2&grade=0&choice=0&nso=so%3Add%2Ca%3Aall%2Cp%3Afrom20180730to20180814&ie=utf8&mson=0
 base_url = 'https://search.naver.com/search.naver'
 sm = 'tab_pge'
 ie = 'utf8'
@@ -20,6 +22,7 @@ kin_sort: int => default: 0
 kin_display: int => default: 10
 kin_start: int
 query: string
+nso:
 '''
 
 base_url = 'https://search.naver.com/search.naver?where=kin&kin_sort=0&kin_display=10&answer=2&ie=utf8&sm=tab_pge'
@@ -29,8 +32,12 @@ def init_koala_nlp():
     initialize(packages=[API.HANNANUM])
 
 
+def get_today():
+    return datetime.now().strftime('%Y%m%d')
+
+
 class Crawling:
-    def __init__(self, query, category, save_file):
+    def __init__(self, query, category, save_file, startat=None):
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
         options.add_argument('window-size=1920x1080')
@@ -49,6 +56,9 @@ class Crawling:
         self.query = query
         self.category = category
         self.url = base_url + "&query=" + self.query
+        if startat:
+            self.url += "&nso=so%3Add%2Ca%3Aall%2Cp%3A" + \
+                "from" + startat + "to" + get_today()
         self.save_file = save_file
 
     def set_soup(self):
